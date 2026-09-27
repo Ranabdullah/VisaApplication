@@ -35,6 +35,9 @@ body{margin:0;font-family:Roboto,Arial,-apple-system,BlinkMacSystemFont,"Segoe U
 .header h1{font-size:14px;margin:0;font-weight:500;color:var(--text-secondary);}
 .avatar-hdr{width:30px;height:30px;border-radius:50%;background:var(--green);color:#fff;font-size:13px;font-weight:700;
   display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+.dlbtn{font-size:12.5px;padding:6px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.08);
+  background:var(--green);color:#fff;cursor:pointer;box-shadow:0 1px 4px rgba(30,40,70,0.1);white-space:nowrap;flex:0 0 auto;}
+.dlbtn:disabled{opacity:.6;cursor:default;}
 .progress{font-size:11px;color:var(--text-muted);}
 .main{flex:1;display:grid;grid-template-columns:190px 280px 1fr;gap:12px;padding:12px;overflow:hidden;min-height:0;}
 .sidebar{overflow-y:auto;padding:12px 8px;border-radius:16px;box-shadow:0 4px 20px rgba(30,40,70,0.05);}
@@ -73,6 +76,12 @@ body{margin:0;font-family:Roboto,Arial,-apple-system,BlinkMacSystemFont,"Segoe U
 .sample .lbl{font-size:11.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;display:block;}
 .sample textarea{width:100%;min-height:220px;border:none;background:none;font-family:Georgia,'Times New Roman',serif;
   font-size:13px;line-height:1.6;color:var(--text);resize:vertical;outline:none;}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
+.fchip{font-size:12px;background:var(--cardsolid);border:1px solid rgba(0,0,0,0.08);border-radius:20px;
+  padding:5px 6px 5px 12px;display:inline-flex;align-items:center;gap:6px;cursor:pointer;}
+.fchip.sel{border-color:var(--green);color:var(--green);font-weight:600;}
+.fchip button{border:none;background:rgba(0,0,0,0.06);border-radius:50%;width:18px;height:18px;cursor:pointer;
+  color:inherit;font-size:13px;line-height:1;}
 .viewer img{max-width:none;transform-origin:top left;transition:transform .1s;}
 .zoombar{display:flex;gap:8px;margin:10px 0;}
 .warn{font-size:12px;color:var(--orange);margin-top:6px;}
@@ -97,6 +106,7 @@ body{margin:0;font-family:Roboto,Arial,-apple-system,BlinkMacSystemFont,"Segoe U
     <div class="search"><span>🔍</span><input id="searchInput" placeholder="Search documents"></div>
     <span class="progress" id="progressLabel"></span>
     <div class="avatar-hdr">A</div>
+    <button class="dlbtn" id="dlAllBtn">⬇ PDF</button>
   </div>
   <div class="main" id="main" data-view="cats">
     <div class="sidebar glass" id="sidebar"></div>
@@ -105,6 +115,7 @@ body{margin:0;font-family:Roboto,Arial,-apple-system,BlinkMacSystemFont,"Segoe U
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 <script>
 const WHO_COLOR = { Ayesha:"var(--pink)", Abdullah:"var(--blue)", Airah:"var(--orange)", Both:"var(--gray)" };
 const CAT_ICON = { app:"📝", id:"🪪", child:"👶", rel:"💍", fin:"💰", other:"📁" };
@@ -140,17 +151,31 @@ const DATA = [
   ]}
 ];
 
-const KEY = "familyVisaDocs_v2";
+const KEY = "familyVisaDocs_v3";
 let state = {};
 try { state = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(e) { state = {}; }
+// migrate from the old single-file format, and from the pre-v3 storage key
+if (!state.__migratedV3) {
+  try {
+    const old = JSON.parse(localStorage.getItem("familyVisaDocs_v2") || "{}");
+    Object.keys(old).forEach(id => {
+      if (id.startsWith("__")) return;
+      if (!state[id]) state[id] = {};
+      if (old[id].checked) state[id].checked = old[id].checked;
+      if (old[id].file && !state[id].files) state[id].files = [old[id].file];
+    });
+  } catch(e) {}
+  state.__migratedV3 = true;
+}
 if (!state.__seeded) {
-  DATA.forEach(sec => sec.items.forEach(it => { if (it.have) state[it.id] = { checked:true }; }));
+  DATA.forEach(sec => sec.items.forEach(it => { if (it.have) state[it.id] = { ...(state[it.id]||{}), checked:true }; }));
   state.__seeded = true;
 }
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){ alert("Could not save — storage may be full."); } }
 
 let activeCat = DATA[0].id;
 let activeItem = null;
+let previewIdx = 0;
 let zoom = 1;
 const isMobile = () => window.innerWidth <= 900;
 
@@ -183,7 +208,7 @@ function rowHtml(it){
       <span class="rt">${it.t}</span>
       ${it.n?`<span class="rn">${it.n}</span>`:''}
     </div>
-    ${st.file?'<span class="clip">📎</span>':''}
+    ${st.files&&st.files.length?`<span class="clip">📎${st.files.length>1?st.files.length:''}</span>`:''}
   </div>`;
 }
 
@@ -201,7 +226,7 @@ function renderList(){
   }
   el.querySelectorAll('[data-item]').forEach(r=>r.addEventListener('click',(e)=>{
     if (e.target.matches('[data-check]')) return;
-    activeItem = r.getAttribute('data-item'); zoom=1;
+    activeItem = r.getAttribute('data-item'); zoom=1; previewIdx=0;
     setView('reader'); renderAll();
   }));
   el.querySelectorAll('[data-check]').forEach(cb=>cb.addEventListener('change',()=>{
@@ -216,50 +241,70 @@ function renderReader(){
   if (!activeItem){ el.innerHTML = '<div class="empty">Select a document to view it here.</div>'; return; }
   const it = findItem(activeItem);
   const st = state[activeItem]||{};
-  const f = st.file;
+  const files = st.files||[];
+  if (previewIdx >= files.length) previewIdx = 0;
+  const chipsHtml = files.map((f,i)=>`<span class="fchip ${i===previewIdx?'sel':''}" data-preview="${i}">
+      ${f.name}<button data-rm="${i}" title="Remove">×</button></span>`).join("");
+  const cur = files[previewIdx];
   let viewerHtml = "";
-  if (f){
-    if (f.type && f.type.startsWith("image/")){
+  if (cur){
+    if (cur.type && cur.type.startsWith("image/")){
       viewerHtml = `<div class="zoombar">
         <button class="btn" id="zOut">−</button>
         <button class="btn" id="zReset">Reset</button>
         <button class="btn" id="zIn">+</button>
       </div>
-      <div class="viewer" id="imgWrap"><img id="zImg" src="${f.data}"></div>`;
+      <div class="viewer" id="imgWrap"><img id="zImg" src="${cur.data}"></div>`;
     } else {
-      viewerHtml = `<a class="btn" href="${f.data}" download="${f.name}" target="_blank">Open ${f.name}</a>`;
+      viewerHtml = `<a class="btn" href="${cur.data}" download="${cur.name}" target="_blank">Open ${cur.name}</a>`;
     }
   }
   const sampleHtml = it.sample ? `<div class="sample"><span class="lbl">Draft letter — fill in, print & sign</span>
     <textarea readonly>${it.sample}</textarea></div>` : "";
+  const multiNote = files.length>1 ? `<div class="warn" style="color:var(--green);">${files.length} files attached — all will be combined together, in this order, in "Download all as PDF".</div>` : "";
   el.innerHTML = `
     <h2 class="r-title">${it.t}</h2>
     <div class="r-note"><span style="color:${WHO_COLOR[it.who]};font-weight:700;">${it.who}</span> — ${it.n||''}</div>
     ${sampleHtml}
     <div class="upload-row">
-      <label class="btn">Upload<input type="file" id="upInput" accept="image/*,.pdf"></label>
-      ${f?`<span>${f.name} <button class="btn" id="rmBtn">Remove</button></span>`:''}
+      <label class="btn">Upload<input type="file" id="upInput" accept="image/*,.pdf" multiple></label>
     </div>
+    ${files.length?`<div class="chips">${chipsHtml}</div>`:''}
+    ${multiNote}
     <div class="warn" id="warnMsg" style="display:none;"></div>
     ${viewerHtml}
   `;
   const upInput = document.getElementById('upInput');
   if (upInput) upInput.addEventListener('change',(e)=>{
-    const file = e.target.files[0];
-    if (!file) return;
+    const picked = Array.from(e.target.files);
+    if (!picked.length) return;
     const warn = document.getElementById('warnMsg');
-    if (file.size > 2*1024*1024){ warn.style.display='block'; warn.textContent='That file is over 2MB — it may fail to save.'; }
+    const big = picked.filter(f=>f.size > 2*1024*1024);
+    if (big.length){ warn.style.display='block'; warn.textContent = big.map(f=>f.name).join(', ') + ' — over 2MB, may fail to save.'; }
     else warn.style.display='none';
-    const reader = new FileReader();
-    reader.onload = ()=>{
+    Promise.all(picked.map(file => new Promise((res,rej)=>{
+      const r = new FileReader();
+      r.onload = ()=>res({name:file.name, type:file.type, data:r.result});
+      r.onerror = rej;
+      r.readAsDataURL(file);
+    }))).then(newFiles=>{
       state[activeItem] = state[activeItem]||{};
-      state[activeItem].file = {name:file.name, type:file.type, data:reader.result};
+      state[activeItem].files = (state[activeItem].files||[]).concat(newFiles);
+      previewIdx = state[activeItem].files.length - 1;
       save(); renderAll();
-    };
-    reader.readAsDataURL(file);
+    }).catch(()=>{ warn.style.display='block'; warn.textContent='Could not read one of those files.'; });
   });
-  const rmBtn = document.getElementById('rmBtn');
-  if (rmBtn) rmBtn.addEventListener('click',()=>{ delete state[activeItem].file; save(); renderAll(); });
+  el.querySelectorAll('[data-preview]').forEach(c=>c.addEventListener('click',(e)=>{
+    if (e.target.matches('[data-rm]')) return;
+    previewIdx = parseInt(c.getAttribute('data-preview'),10); zoom=1; renderReader();
+  }));
+  el.querySelectorAll('[data-rm]').forEach(b=>b.addEventListener('click',(e)=>{
+    e.stopPropagation();
+    const i = parseInt(b.getAttribute('data-rm'),10);
+    state[activeItem].files.splice(i,1);
+    previewIdx = 0;
+    save(); renderAll();
+  }));
   const zImg = document.getElementById('zImg');
   if (zImg){
     document.getElementById('zIn').onclick=()=>{ zoom=Math.min(zoom+0.25,4); zImg.style.transform=`scale(${zoom})`; };
@@ -302,6 +347,63 @@ document.getElementById('searchInput').addEventListener('input', ()=>{
   if (isMobile()) setView('list');
   renderList();
 });
+
+async function downloadAllPdf(){
+  const btn = document.getElementById('dlAllBtn');
+  const original = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Building…';
+  try {
+    if (!window.PDFLib) throw new Error('PDF library did not load — check your connection and try again.');
+    const { PDFDocument, StandardFonts, rgb } = PDFLib;
+    const merged = await PDFDocument.create();
+    const font = await merged.embedFont(StandardFonts.HelveticaBold);
+    let count = 0; const missing = [];
+    for (const sec of DATA){
+      for (const it of sec.items){
+        const files = (state[it.id]||{}).files || [];
+        if (!files.length){ missing.push(it.t); continue; }
+        const label = merged.addPage([595,120]);
+        label.drawText(sec.title.toUpperCase(), {x:40,y:80,size:11,font,color:rgb(0.36,0.34,0.31)});
+        label.drawText(`${it.t} \u2014 ${it.who}${files.length>1?` (${files.length} files combined)`:''}`,
+          {x:40,y:50,size:13,font,color:rgb(0.13,0.13,0.11)});
+        let added = false;
+        for (const f of files){
+          const buf = await (await fetch(f.data)).arrayBuffer();
+          const type = f.type || '';
+          if (type === 'application/pdf'){
+            const src = await PDFDocument.load(buf);
+            const pages = await merged.copyPages(src, src.getPageIndices());
+            pages.forEach(p=>merged.addPage(p));
+            added = true;
+          } else if (type.includes('png') || type.includes('jpeg') || type.includes('jpg')){
+            const img = type.includes('png') ? await merged.embedPng(buf) : await merged.embedJpg(buf);
+            const scale = Math.min(595/img.width, 842/img.height, 1);
+            const w = img.width*scale, h = img.height*scale;
+            const page = merged.addPage([595,842]);
+            page.drawImage(img, {x:(595-w)/2, y:(842-h)/2, width:w, height:h});
+            added = true;
+          } else {
+            missing.push(`${f.name} (unsupported type — re-upload as JPG, PNG or PDF)`);
+          }
+        }
+        if (added) count++;
+      }
+    }
+    if (count===0){ alert('No documents uploaded yet — upload files first, then try again.'); return; }
+    const bytes = await merged.save();
+    const blob = new Blob([bytes], {type:'application/pdf'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'Family-Visa-Documents.pdf'; document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    if (missing.length) alert('Downloaded ' + count + ' document(s).\n\nNot included (not uploaded yet):\n' + missing.join('\n'));
+  } catch(err){
+    alert('Could not build the PDF: ' + err.message);
+  } finally {
+    btn.disabled = false; btn.textContent = original;
+  }
+}
+document.getElementById('dlAllBtn').addEventListener('click', downloadAllPdf);
 </script>
 </body>
 </html>
