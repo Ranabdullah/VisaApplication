@@ -125,9 +125,37 @@ button{touch-action:manipulation}
   .sidebar,.list-pane,.reader-pane{display:none;grid-column:1;border-radius:20px;min-height:calc(100dvh - 84px);overflow:visible}.main[data-view="cats"] .sidebar{display:block}.main[data-view="list"] .list-pane{display:block}.main[data-view="reader"] .reader-pane{display:block}.backbtn{display:grid}.hbtn,.search,.avatar-hdr{display:none}.logo{flex:1}.logo .dot{width:34px;height:34px;border-radius:11px}.progress{font-size:10.5px;padding:6px 7px}.dlbtn{padding:8px 10px;font-size:11px}.sidebar{padding:12px}.summary-card{padding:15px}.cat{padding:12px;margin-bottom:5px}.list-pane{padding:8px}.row{padding:12px 10px}.reader-pane{padding:16px}.reader-head{display:block}.owner-pill{margin-top:10px}.upload-zone{align-items:flex-start;flex-direction:column}.upload-zone .btn{width:100%}.pdf-view{min-height:68vh}.viewer{max-height:70vh}.sample textarea{min-height:300px}.r-title{font-size:19px}
 }
 @media (max-width:430px){.header{gap:8px}.dlbtn{padding:8px 9px}.progress{display:none}.logo{font-size:13px}.reader-pane{padding:14px}.row .rn{-webkit-line-clamp:3}}
+
+/* Firebase sign-in */
+.auth-screen{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:22px;background:
+  radial-gradient(circle at 12% 10%,rgba(82,151,255,.44),transparent 32%),
+  radial-gradient(circle at 88% 12%,rgba(160,102,255,.35),transparent 31%),
+  radial-gradient(circle at 72% 90%,rgba(39,194,155,.30),transparent 34%),
+  linear-gradient(135deg,#e7f1ff,#f4f1ff 48%,#edfaf6)}
+.auth-screen.hidden{display:none}
+.auth-card{width:min(430px,100%);padding:28px;border-radius:28px;background:rgba(255,255,255,.66);border:1px solid rgba(255,255,255,.88);box-shadow:0 28px 80px rgba(39,57,96,.22);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%)}
+.auth-brand{display:flex;align-items:center;gap:13px;margin-bottom:24px}.auth-logo{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;font-size:23px;background:linear-gradient(135deg,var(--blue),var(--purple),var(--green-2));box-shadow:0 10px 26px rgba(75,104,210,.25)}
+.auth-card h1{font-size:24px;margin:0 0 4px}.auth-card p{margin:0;color:var(--text-secondary);font-size:13px;line-height:1.5}.auth-field{margin-top:15px}.auth-field label{display:block;font-size:12px;font-weight:800;color:var(--text-secondary);margin:0 0 7px}.auth-field input{width:100%;border:1px solid rgba(103,119,146,.18);background:rgba(255,255,255,.78);border-radius:14px;padding:13px 14px;font:inherit;font-size:14px;color:var(--text);outline:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.75)}.auth-field input:focus{border-color:rgba(61,114,246,.55);box-shadow:0 0 0 4px rgba(61,114,246,.10)}
+.auth-submit{margin-top:18px;width:100%;border:0;border-radius:14px;padding:13px 15px;font:inherit;font-size:14px;font-weight:800;color:white;cursor:pointer;background:linear-gradient(135deg,var(--blue),var(--purple));box-shadow:0 10px 24px rgba(78,91,203,.25)}.auth-submit:disabled{opacity:.6;cursor:wait}.auth-error{display:none;margin-top:12px;padding:10px 12px;border-radius:12px;background:rgba(230,108,58,.10);color:#a94422;font-size:12px;line-height:1.45}.auth-note{margin-top:14px!important;font-size:11px!important;color:var(--text-muted)!important;text-align:center}
+.user-menu{display:flex;align-items:center;gap:8px}.avatar-hdr{cursor:pointer;border:0}.logout-btn{border:1px solid rgba(255,255,255,.7);background:rgba(255,255,255,.52);color:var(--text-secondary);padding:7px 10px;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer;display:none}.user-menu:hover .logout-btn{display:block}
+.sync-pill{font-size:10.5px;font-weight:700;color:var(--green);background:rgba(12,139,114,.09);border:1px solid rgba(12,139,114,.13);padding:5px 8px;border-radius:999px;white-space:nowrap}
+.upload-progress{height:7px;background:rgba(61,114,246,.10);border-radius:999px;overflow:hidden;margin-top:10px;display:none}.upload-progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--purple));transition:width .18s ease}
+.file-by{font-size:10.5px;color:var(--text-muted);margin-top:3px}
+@media(max-width:900px){.sync-pill,.logout-btn{display:none!important}.auth-card{padding:22px;border-radius:24px}.auth-card h1{font-size:21px}}
+
 </style>
 </head>
 <body>
+<div class="auth-screen" id="authScreen">
+  <form class="auth-card" id="authForm">
+    <div class="auth-brand"><div class="auth-logo">👪</div><div><h1>Family Visa Documents</h1><p>Private shared workspace for Abdullah &amp; Ayesha</p></div></div>
+    <div class="auth-field"><label for="loginEmail">Email</label><input id="loginEmail" type="email" autocomplete="username" required placeholder="you@example.com"></div>
+    <div class="auth-field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Password"></div>
+    <button class="auth-submit" id="loginBtn" type="submit">Sign in</button>
+    <div class="auth-error" id="authError"></div>
+    <p class="auth-note">Only accounts created in your Firebase Authentication project can sign in.</p>
+  </form>
+</div>
 <div class="app">
   <div class="header">
     <button class="backbtn" id="backBtn">←</button>
@@ -135,7 +163,8 @@ button{touch-action:manipulation}
     <div class="logo"><span class="dot">👪</span><span id="headerTitle">Family Docs</span></div>
     <div class="search"><span>🔍</span><input id="searchInput" placeholder="Search documents"></div>
     <span class="progress" id="progressLabel"></span>
-    <div class="avatar-hdr">A</div>
+    <span class="sync-pill" id="syncStatus">Cloud sync</span>
+    <div class="user-menu"><button class="avatar-hdr" id="userAvatar" title="Signed in">A</button><button class="logout-btn" id="logoutBtn">Sign out</button></div>
     <button class="dlbtn" id="dlAllBtn">⬇ PDF</button>
   </div>
   <div class="main" id="main" data-view="cats">
@@ -146,7 +175,28 @@ button{touch-action:manipulation}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, onSnapshot, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import { getStorage, ref as storageRef, uploadBytesResumable, deleteObject, getBlob } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBq5tKTK2BM8PIDpYyfeDIWLjkrt3ji-24",
+  authDomain: "files-upload-27f44.firebaseapp.com",
+  projectId: "files-upload-27f44",
+  storageBucket: "files-upload-27f44.firebasestorage.app",
+  messagingSenderId: "333594365325",
+  appId: "1:333594365325:web:34c6ab232e186bce89c1c4",
+  measurementId: "G-4VZVF2PGTJ"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
+const storage = getStorage(firebaseApp);
+setPersistence(auth, browserLocalPersistence).catch(()=>{});
+
 const WHO_COLOR = { Ayesha:"var(--pink)", Abdullah:"var(--blue)", Airah:"var(--orange)", Both:"var(--gray)" };
 const CAT_ICON = { app:"📝", id:"🪪", child:"👶", rel:"💍", fin:"💰", other:"📁" };
 
@@ -181,27 +231,38 @@ const DATA = [
   ]}
 ];
 
-const KEY = "familyVisaDocs_v3";
 let state = {};
-try { state = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(e) { state = {}; }
-// migrate from the old single-file format, and from the pre-v3 storage key
-if (!state.__migratedV3) {
-  try {
-    const old = JSON.parse(localStorage.getItem("familyVisaDocs_v2") || "{}");
-    Object.keys(old).forEach(id => {
-      if (id.startsWith("__")) return;
-      if (!state[id]) state[id] = {};
-      if (old[id].checked) state[id].checked = old[id].checked;
-      if (old[id].file && !state[id].files) state[id].files = [old[id].file];
-    });
-  } catch(e) {}
-  state.__migratedV3 = true;
+let currentUser = null;
+let unsubscribeItems = null;
+const objectUrlCache = new Map();
+
+// The checklist is synced in Firestore. File bytes live in Firebase Storage.
+// No visa document content is stored in localStorage.
+function seedDefaults(){
+  DATA.forEach(sec => sec.items.forEach(it => {
+    if (it.have && !state[it.id]) state[it.id] = { checked:true, files:[] };
+  }));
 }
-if (!state.__seeded) {
-  DATA.forEach(sec => sec.items.forEach(it => { if (it.have) state[it.id] = { ...(state[it.id]||{}), checked:true }; }));
-  state.__seeded = true;
+function itemDoc(id){ return doc(db, "familyVisa", "shared", "items", id); }
+async function saveItem(id, patch){
+  if (!currentUser) throw new Error("Please sign in again.");
+  await setDoc(itemDoc(id), patch, {merge:true});
 }
-function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e){ alert("Could not save — storage may be full."); } }
+function startCloudSync(){
+  if (unsubscribeItems) unsubscribeItems();
+  document.getElementById('syncStatus').textContent = 'Syncing…';
+  unsubscribeItems = onSnapshot(collection(db, "familyVisa", "shared", "items"), snap=>{
+    const next = {};
+    snap.forEach(d=>{ next[d.id] = d.data(); });
+    state = next; seedDefaults();
+    document.getElementById('syncStatus').textContent = '● Synced';
+    renderAll();
+  }, err=>{
+    console.error(err);
+    document.getElementById('syncStatus').textContent = 'Sync error';
+  });
+}
+
 
 let activeCat = DATA[0].id;
 let activeItem = null;
@@ -275,11 +336,13 @@ function renderList(){
     activeItem = r.getAttribute('data-item'); zoom=1; previewIdx=0;
     setView('reader'); renderAll();
   }));
-  el.querySelectorAll('[data-check]').forEach(cb=>cb.addEventListener('change',()=>{
+  el.querySelectorAll('[data-check]').forEach(cb=>cb.addEventListener('change',async()=>{
     const id = cb.getAttribute('data-check');
-    state[id] = state[id]||{}; state[id].checked = cb.checked;
-    delete state[id].autoChecked;
-    save(); renderAll();
+    cb.disabled = true;
+    try {
+      await saveItem(id, {checked: cb.checked, autoChecked:false, updatedBy: currentUser?.email || ''});
+    } catch(err){ alert('Could not sync this change: ' + err.message); }
+    finally { cb.disabled = false; }
   }));
 }
 
@@ -295,18 +358,8 @@ function renderReader(){
   const cur = files[previewIdx];
   let viewerHtml = "";
   if (cur){
-    if (cur.type && cur.type.startsWith("image/")){
-      viewerHtml = `<div class="zoombar">
-        <button class="btn" id="zOut">−</button>
-        <button class="btn" id="zReset">Reset</button>
-        <button class="btn" id="zIn">+</button>
-      </div>
-      <div class="viewer" id="imgWrap"><img id="zImg" src="${cur.data}"></div>`;
-    } else if ((cur.type||'').includes('pdf')) {
-      viewerHtml = `<div class="file-card"><div class="file-icon">📕</div><div class="file-meta"><div class="file-name">${cur.name}</div><div class="file-type">PDF document</div></div><a class="btn" href="${cur.data}" download="${cur.name}" target="_blank">Open</a></div><div class="viewer" style="margin-top:10px"><iframe class="pdf-view" src="${cur.data}#toolbar=0&navpanes=0"></iframe></div>`;
-    } else {
-      viewerHtml = `<div class="file-card"><div class="file-icon">📎</div><div class="file-meta"><div class="file-name">${cur.name}</div><div class="file-type">${cur.type||'Document'}</div></div><a class="btn" href="${cur.data}" download="${cur.name}" target="_blank">Open</a></div>`;
-    }
+    const uploadedBy = cur.uploadedBy ? ` · Uploaded by ${cur.uploadedBy}` : '';
+    viewerHtml = `<div class="file-card"><div class="file-icon">${(cur.type||'').includes('pdf')?'📕':'📎'}</div><div class="file-meta"><div class="file-name">${cur.name}</div><div class="file-type">Loading secure preview…</div><div class="file-by">${uploadedBy}</div></div><button class="btn" id="openCloudFile" disabled>Open</button></div><div id="cloudPreview"></div>`;
   }
   const sampleHtml = it.sample ? `<div class="sample"><span class="lbl">Draft letter — fill in, print & sign</span>
     <textarea readonly>${it.sample}</textarea></div>` : "";
@@ -318,8 +371,9 @@ function renderReader(){
     </div>
     ${sampleHtml}
     <div class="upload-zone">
-      <div class="upload-copy"><div class="upload-title">${files.length ? 'Add another document' : 'Upload supporting document'}</div><div class="upload-sub">PDF, JPG or PNG. Uploading automatically marks this item complete on this browser.</div></div>
+      <div class="upload-copy"><div class="upload-title">${files.length ? 'Add another document' : 'Upload supporting document'}</div><div class="upload-sub">PDF, JPG or PNG. Uploads are stored securely in Firebase and sync to both devices.</div></div>
       <label class="btn primary">＋ Choose file<input type="file" id="upInput" accept="image/*,.pdf" multiple></label>
+      <div class="upload-progress" id="uploadProgress"><span></span></div>
     </div>
     ${files.length?`<div class="chips">${chipsHtml}</div><div class="saved-note">✓ ${files.length} file${files.length>1?'s':''} attached</div>`:''}
     ${multiNote}
@@ -327,48 +381,91 @@ function renderReader(){
     ${viewerHtml}
   `;
   const upInput = document.getElementById('upInput');
-  if (upInput) upInput.addEventListener('change',(e)=>{
+  if (upInput) upInput.addEventListener('change', async (e)=>{
     const picked = Array.from(e.target.files);
-    if (!picked.length) return;
+    if (!picked.length || !currentUser) return;
     const warn = document.getElementById('warnMsg');
-    const big = picked.filter(f=>f.size > 2*1024*1024);
-    if (big.length){ warn.style.display='block'; warn.textContent = big.map(f=>f.name).join(', ') + ' — over 2MB, may fail to save.'; }
-    else warn.style.display='none';
-    Promise.all(picked.map(file => new Promise((res,rej)=>{
-      const r = new FileReader();
-      r.onload = ()=>res({name:file.name, type:file.type, data:r.result});
-      r.onerror = rej;
-      r.readAsDataURL(file);
-    }))).then(newFiles=>{
-      state[activeItem] = state[activeItem]||{};
-      const wasChecked = !!state[activeItem].checked;
-      state[activeItem].files = (state[activeItem].files||[]).concat(newFiles);
-      state[activeItem].checked = true;
-      if (!wasChecked) state[activeItem].autoChecked = true;
-      previewIdx = state[activeItem].files.length - 1;
-      save(); renderAll();
-    }).catch(()=>{ warn.style.display='block'; warn.textContent='Could not read one of those files.'; });
+    const prog = document.getElementById('uploadProgress');
+    const bar = prog?.querySelector('span');
+    const tooBig = picked.filter(f=>f.size > 20*1024*1024);
+    if (tooBig.length){ warn.style.display='block'; warn.textContent = tooBig.map(f=>f.name).join(', ') + ' — file is over 20MB.'; return; }
+    warn.style.display='none';
+    upInput.disabled = true;
+    if (prog) prog.style.display='block';
+    try{
+      for (let idx=0; idx<picked.length; idx++){
+        const file = picked[idx];
+        const safeName = file.name.replace(/[^a-zA-Z0-9._-]+/g,'_');
+        const path = `family-visa/${activeItem}/${Date.now()}_${Math.random().toString(36).slice(2,7)}_${safeName}`;
+        const task = uploadBytesResumable(storageRef(storage,path), file, {contentType:file.type || 'application/octet-stream'});
+        await new Promise((resolve,reject)=>{
+          task.on('state_changed', snap=>{
+            const one = snap.totalBytes ? snap.bytesTransferred/snap.totalBytes : 0;
+            const overall = ((idx + one)/picked.length)*100;
+            if (bar) bar.style.width = `${overall}%`;
+          }, reject, resolve);
+        });
+        const meta = {name:file.name, type:file.type || 'application/octet-stream', path, uploadedBy:currentUser.email || '', uploadedAt:Date.now()};
+        await setDoc(itemDoc(activeItem), {
+          files: arrayUnion(meta), checked:true, autoChecked:true, updatedBy:currentUser.email || ''
+        }, {merge:true});
+      }
+      if (bar) bar.style.width='100%';
+    }catch(err){
+      console.error(err); warn.style.display='block'; warn.textContent='Upload failed: ' + err.message;
+    }finally{
+      upInput.disabled = false;
+      setTimeout(()=>{ if(prog) prog.style.display='none'; if(bar) bar.style.width='0'; },450);
+      e.target.value='';
+    }
   });
   el.querySelectorAll('[data-preview]').forEach(c=>c.addEventListener('click',(e)=>{
     if (e.target.matches('[data-rm]')) return;
     previewIdx = parseInt(c.getAttribute('data-preview'),10); zoom=1; renderReader();
   }));
-  el.querySelectorAll('[data-rm]').forEach(b=>b.addEventListener('click',(e)=>{
+  el.querySelectorAll('[data-rm]').forEach(b=>b.addEventListener('click',async(e)=>{
     e.stopPropagation();
     const i = parseInt(b.getAttribute('data-rm'),10);
-    state[activeItem].files.splice(i,1);
-    if (!state[activeItem].files.length && state[activeItem].autoChecked){
-      state[activeItem].checked = false;
-      delete state[activeItem].autoChecked;
-    }
-    previewIdx = 0;
-    save(); renderAll();
+    const file = (state[activeItem]?.files||[])[i];
+    if (!file || !confirm(`Remove ${file.name}?`)) return;
+    try{
+      await deleteObject(storageRef(storage,file.path));
+      const remaining = (state[activeItem]?.files||[]).filter((_,idx)=>idx!==i);
+      await setDoc(itemDoc(activeItem), {files:arrayRemove(file), checked: remaining.length ? true : !(state[activeItem]?.autoChecked), autoChecked: remaining.length ? true : false}, {merge:true});
+      const cached = objectUrlCache.get(file.path); if(cached){ URL.revokeObjectURL(cached); objectUrlCache.delete(file.path); }
+      previewIdx = 0;
+    }catch(err){ alert('Could not remove file: ' + err.message); }
   }));
-  const zImg = document.getElementById('zImg');
-  if (zImg){
-    document.getElementById('zIn').onclick=()=>{ zoom=Math.min(zoom+0.25,4); zImg.style.transform=`scale(${zoom})`; };
-    document.getElementById('zOut').onclick=()=>{ zoom=Math.max(zoom-0.25,0.5); zImg.style.transform=`scale(${zoom})`; };
-    document.getElementById('zReset').onclick=()=>{ zoom=1; zImg.style.transform='scale(1)'; };
+  if (cur?.path) loadSecurePreview(cur).catch(err=>{
+    const host=document.getElementById('cloudPreview'); if(host) host.innerHTML=`<div class="warn">Could not load preview: ${err.message}</div>`;
+  });
+}
+
+
+async function secureObjectUrl(file){
+  if (objectUrlCache.has(file.path)) return objectUrlCache.get(file.path);
+  const blob = await getBlob(storageRef(storage,file.path));
+  const url = URL.createObjectURL(blob);
+  objectUrlCache.set(file.path,url);
+  return url;
+}
+async function loadSecurePreview(file){
+  const url = await secureObjectUrl(file);
+  const host = document.getElementById('cloudPreview');
+  const open = document.getElementById('openCloudFile');
+  if (!host || !open) return;
+  open.disabled=false;
+  open.onclick=()=>{ const a=document.createElement('a'); a.href=url; a.download=file.name; a.target='_blank'; a.click(); };
+  const type=file.type||'';
+  const typeEl=open.parentElement?.querySelector('.file-type'); if(typeEl) typeEl.textContent = type.includes('pdf') ? 'PDF document · Cloud synced' : 'Cloud document · Synced';
+  if(type.startsWith('image/')){
+    host.innerHTML=`<div class="zoombar"><button class="btn" id="zOut">−</button><button class="btn" id="zReset">Reset</button><button class="btn" id="zIn">+</button></div><div class="viewer" id="imgWrap"><img id="zImg" src="${url}"></div>`;
+    const zImg=document.getElementById('zImg');
+    document.getElementById('zIn').onclick=()=>{zoom=Math.min(zoom+.25,4);zImg.style.transform=`scale(${zoom})`};
+    document.getElementById('zOut').onclick=()=>{zoom=Math.max(zoom-.25,.5);zImg.style.transform=`scale(${zoom})`};
+    document.getElementById('zReset').onclick=()=>{zoom=1;zImg.style.transform='scale(1)'};
+  }else if(type.includes('pdf')){
+    host.innerHTML=`<div class="viewer" style="margin-top:10px"><iframe class="pdf-view" src="${url}#toolbar=0&navpanes=0"></iframe></div>`;
   }
 }
 
@@ -400,6 +497,7 @@ document.getElementById('backBtn').addEventListener('click', ()=>{
 });
 
 function renderAll(){ renderSidebar(); renderList(); renderReader(); renderProgress(); }
+seedDefaults();
 setView(isMobile() ? 'cats' : 'reader');
 renderAll();
 document.getElementById('searchInput').addEventListener('input', ()=>{
@@ -427,7 +525,8 @@ async function downloadAllPdf(){
           {x:40,y:50,size:13,font,color:rgb(0.13,0.13,0.11)});
         let added = false;
         for (const f of files){
-          const buf = await (await fetch(f.data)).arrayBuffer();
+          const secureUrl = await secureObjectUrl(f);
+          const buf = await (await fetch(secureUrl)).arrayBuffer();
           const type = f.type || '';
           if (type === 'application/pdf'){
             const src = await PDFDocument.load(buf);
@@ -462,7 +561,40 @@ async function downloadAllPdf(){
     btn.disabled = false; btn.textContent = original;
   }
 }
+
 document.getElementById('dlAllBtn').addEventListener('click', downloadAllPdf);
+
+const authScreen=document.getElementById('authScreen');
+const authForm=document.getElementById('authForm');
+const authError=document.getElementById('authError');
+const loginBtn=document.getElementById('loginBtn');
+authForm.addEventListener('submit', async e=>{
+  e.preventDefault(); authError.style.display='none'; loginBtn.disabled=true; loginBtn.textContent='Signing in…';
+  try{
+    await signInWithEmailAndPassword(auth, document.getElementById('loginEmail').value.trim(), document.getElementById('loginPassword').value);
+  }catch(err){
+    console.error(err); authError.style.display='block';
+    authError.textContent = 'Could not sign in. Check the email/password and make sure Email/Password authentication is enabled in Firebase.';
+  }finally{ loginBtn.disabled=false; loginBtn.textContent='Sign in'; }
+});
+document.getElementById('logoutBtn').addEventListener('click',()=>signOut(auth));
+document.getElementById('userAvatar').addEventListener('click',()=>{ if(confirm(`Signed in as ${currentUser?.email||''}. Sign out?`)) signOut(auth); });
+
+onAuthStateChanged(auth, user=>{
+  currentUser=user;
+  if(user){
+    authScreen.classList.add('hidden');
+    const label=(user.displayName || user.email || 'U').trim();
+    document.getElementById('userAvatar').textContent=label[0].toUpperCase();
+    document.getElementById('userAvatar').title=user.email || 'Signed in';
+    startCloudSync();
+  }else{
+    if(unsubscribeItems){ unsubscribeItems(); unsubscribeItems=null; }
+    state={}; seedDefaults(); renderAll();
+    authScreen.classList.remove('hidden');
+    document.getElementById('syncStatus').textContent='Offline';
+  }
+});
 </script>
 </body>
 </html>
