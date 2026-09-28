@@ -220,39 +220,124 @@ function findItem(id){ for (const s of DATA) for (const it of s.items) if (it.id
 function fileUrl(id){ return API_BASE.replace(/\/$/,'') + '/file/' + encodeURIComponent(id); }
 
 async function syncCloud(showStatus=true){
-  if (!sessionToken) return false;
-  const status=document.getElementById('cloudStatus');
-  if(showStatus){status.textContent='↻ Syncing';status.classList.remove('bad');}
-  try{
-    const r=await api('/sync');
-    if(r.status===401){ logout(false); return false; }
-    if(!r.ok) throw new Error((await r.json()).error||'Sync failed');
-    const d=await r.json();
-    state={};
-    for(const [id,files] of Object.entries(d.items||{})) state[id]={files};
-    currentUser=d.user||currentUser;
-    localStorage.setItem('familyVisaDriveUser_v1',currentUser);
-    document.getElementById('avatarHdr').textContent=(currentUser||'A')[0];
-    status.textContent='☁ Shared';status.classList.remove('bad');
+  const status = document.getElementById('cloudStatus');
+
+  if (!sessionToken) {
+    status.textContent = 'Sign in';
+    status.classList.add('bad');
+    document.getElementById('authOverlay').classList.remove('hidden');
+    return false;
+  }
+
+  if (showStatus) {
+    status.textContent = '☁ Syncing…';
+    status.classList.remove('bad');
+  }
+
+  try {
+    const r = await api('/sync');
+
+    if (r.status === 401) {
+      let message = 'Your saved sign-in expired. Please sign in again.';
+      try {
+        const d = await r.json();
+        if (d?.error) message = d.error;
+      } catch (_) {}
+
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem('familyVisaDriveUser_v1');
+      sessionToken = '';
+      currentUser = '';
+
+      document.getElementById('authOverlay').classList.remove('hidden');
+      document.getElementById('loginError').textContent = message;
+      status.textContent = 'Sign in';
+      status.classList.add('bad');
+      return false;
+    }
+
+    const d = await r.json();
+
+    if (!r.ok) {
+      throw new Error(d?.error || `Sync failed (${r.status})`);
+    }
+
+    state = {};
+    Object.entries(d.items || {}).forEach(([itemId, files]) => {
+      state[itemId] = { files: Array.isArray(files) ? files : [] };
+    });
+
+    currentUser = d.user || currentUser;
+    if (currentUser) {
+      localStorage.setItem('familyVisaDriveUser_v1', currentUser);
+      document.getElementById('avatarHdr').textContent = currentUser[0].toUpperCase();
+    }
+
+    document.getElementById('authOverlay').classList.add('hidden');
+    status.textContent = '☁ Shared';
+    status.classList.remove('bad');
     renderAll();
     return true;
-  }catch(e){status.textContent='⚠ Offline';status.classList.add('bad'); console.error(e); return false;}
+  } catch (e) {
+    console.error('Sync error:', e);
+    status.textContent = '⚠ Retry';
+    status.classList.add('bad');
+
+    if (showStatus) {
+      const err = document.getElementById('loginError');
+      if (err && !document.getElementById('authOverlay').classList.contains('hidden')) {
+        err.textContent = e?.message || 'Could not connect to shared Drive.';
+      }
+    }
+    return false;
+  }
 }
 function logout(clear=true){ if(clear){localStorage.removeItem(TOKEN_KEY);localStorage.removeItem('familyVisaDriveUser_v1');} sessionToken='';currentUser='';document.getElementById('authOverlay').classList.remove('hidden'); }
 
 async function login(){
-  const btn=document.getElementById('loginBtn'), err=document.getElementById('loginError');
-  btn.disabled=true;btn.textContent='Signing in…';err.textContent='';
-  try{
-    const user=document.getElementById('loginUser').value;
-    const password=document.getElementById('loginPassword').value;
-    const r=await fetch(API_BASE.replace(/\/$/,'')+'/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user,password})});
-    const d=await r.json(); if(!r.ok) throw new Error(d.error||'Sign in failed.');
-    sessionToken=d.token;currentUser=d.user;localStorage.setItem(TOKEN_KEY,sessionToken);localStorage.setItem('familyVisaDriveUser_v1',currentUser);
-    document.getElementById('authOverlay').classList.add('hidden');document.getElementById('loginPassword').value='';
-    await syncCloud();
-  }catch(e){err.textContent=e.message;}
-  finally{btn.disabled=false;btn.textContent='Sign in';}
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('loginError');
+  err.textContent = '';
+  btn.disabled = true;
+  btn.textContent = 'Signing in…';
+
+  try {
+    const user = document.getElementById('loginUser').value;
+    const password = document.getElementById('loginPassword').value;
+
+    if (!password) throw new Error('Enter your password.');
+
+    const r = await fetch(API_BASE.replace(/\/$/,'') + '/login', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({user, password})
+    });
+
+    const d = await r.json().catch(() => ({}));
+
+    if (!r.ok || !d.token) {
+      throw new Error(d.error || 'Sign in failed.');
+    }
+
+    sessionToken = d.token;
+    currentUser = d.user || user;
+
+    localStorage.setItem(TOKEN_KEY, sessionToken);
+    localStorage.setItem('familyVisaDriveUser_v1', currentUser);
+
+    document.getElementById('loginPassword').value = '';
+
+    const ok = await syncCloud(true);
+    if (!ok && !sessionToken) return;
+
+    document.getElementById('authOverlay').classList.add('hidden');
+  } catch (e) {
+    err.textContent = e?.message || 'Sign in failed.';
+    document.getElementById('authOverlay').classList.remove('hidden');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Sign in';
+  }
 }
 
 document.getElementById('loginBtn').onclick=login;
@@ -283,6 +368,15 @@ function renderProgress(){const v=document.getElementById('main').dataset.view;i
 function setView(v){document.getElementById('main').dataset.view=v;document.getElementById('headerTitle').textContent=v==='cats'?'Ireland Join Family Visa':v==='list'?DATA.find(s=>s.id===activeCat).title:(activeItem?findItem(activeItem).t:'Family Docs');renderProgress();}
 document.getElementById('backBtn').onclick=()=>{const v=document.getElementById('main').dataset.view;if(v==='reader')setView('list');else if(v==='list')setView('cats');};
 function renderAll(){renderSidebar();renderList();renderReader();renderProgress();}
+document.getElementById('cloudStatus').addEventListener('click', async ()=>{
+  if (!sessionToken) {
+    document.getElementById('authOverlay').classList.remove('hidden');
+    document.getElementById('loginError').textContent = '';
+    return;
+  }
+  await syncCloud(true);
+});
+
 document.getElementById('searchInput').addEventListener('input',()=>{if(isMobile())setView('list');renderList();});
 
 async function downloadAllPdf(){
@@ -291,10 +385,38 @@ async function downloadAllPdf(){
     for(const sec of DATA)for(const it of sec.items){const files=state[it.id]?.files||[];if(!files.length)continue;const label=merged.addPage([595,120]);label.drawText(sec.title.toUpperCase(),{x:40,y:80,size:11,font,color:rgb(.36,.34,.31)});label.drawText(`${it.t} — ${it.who}`,{x:40,y:50,size:13,font,color:rgb(.13,.13,.11)});for(const f of files){const r=await fetch(fileUrl(f.id),{headers:{Authorization:'Bearer '+sessionToken}});if(!r.ok)continue;const buf=await r.arrayBuffer();const type=f.type||'';if(type.includes('pdf')){const src=await PDFDocument.load(buf);const pages=await merged.copyPages(src,src.getPageIndices());pages.forEach(p=>merged.addPage(p));}else if(type.includes('png')||type.includes('jpeg')||type.includes('jpg')){const img=type.includes('png')?await merged.embedPng(buf):await merged.embedJpg(buf);const scale=Math.min(595/img.width,842/img.height,1),w=img.width*scale,h=img.height*scale;const page=merged.addPage([595,842]);page.drawImage(img,{x:(595-w)/2,y:(842-h)/2,width:w,height:h});}}count++;}
     if(!count)throw new Error('No documents uploaded yet.');const bytes=await merged.save();const u=URL.createObjectURL(new Blob([bytes],{type:'application/pdf'}));const a=document.createElement('a');a.href=u;a.download='Family-Visa-Documents.pdf';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);
   }catch(e){alert(e.message)}finally{btn.disabled=false;btn.textContent=original;}}
+document.getElementById('avatarHdr').addEventListener('click', ()=>{
+  if (!confirm('Sign out of Family Docs on this device?')) return;
+  logout(true);
+  document.getElementById('cloudStatus').textContent = 'Sign in';
+  document.getElementById('cloudStatus').classList.add('bad');
+});
+
 document.getElementById('dlAllBtn').onclick=downloadAllPdf;
 
 setView(isMobile()?'cats':'reader');renderAll();
-if(sessionToken){document.getElementById('authOverlay').classList.add('hidden');syncCloud();}
+(async function startApp(){
+  const status = document.getElementById('cloudStatus');
+
+  if (!sessionToken) {
+    status.textContent = 'Sign in';
+    status.classList.add('bad');
+    document.getElementById('authOverlay').classList.remove('hidden');
+    return;
+  }
+
+  // Keep the login overlay visible until the saved session is actually validated.
+  document.getElementById('authOverlay').classList.remove('hidden');
+  const err = document.getElementById('loginError');
+  err.textContent = 'Checking saved sign-in…';
+
+  const ok = await syncCloud(true);
+
+  if (ok) {
+    err.textContent = '';
+    document.getElementById('authOverlay').classList.add('hidden');
+  }
+})();
 
 </script>
 </body>
