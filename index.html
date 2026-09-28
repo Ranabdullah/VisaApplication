@@ -126,35 +126,22 @@ button{touch-action:manipulation}
 }
 @media (max-width:430px){.header{gap:8px}.dlbtn{padding:8px 9px}.progress{display:none}.logo{font-size:13px}.reader-pane{padding:14px}.row .rn{-webkit-line-clamp:3}}
 
-/* Firebase sign-in */
-.auth-screen{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:22px;background:
-  radial-gradient(circle at 12% 10%,rgba(82,151,255,.44),transparent 32%),
-  radial-gradient(circle at 88% 12%,rgba(160,102,255,.35),transparent 31%),
-  radial-gradient(circle at 72% 90%,rgba(39,194,155,.30),transparent 34%),
-  linear-gradient(135deg,#e7f1ff,#f4f1ff 48%,#edfaf6)}
-.auth-screen.hidden{display:none}
-.auth-card{width:min(430px,100%);padding:28px;border-radius:28px;background:rgba(255,255,255,.66);border:1px solid rgba(255,255,255,.88);box-shadow:0 28px 80px rgba(39,57,96,.22);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%)}
-.auth-brand{display:flex;align-items:center;gap:13px;margin-bottom:24px}.auth-logo{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;font-size:23px;background:linear-gradient(135deg,var(--blue),var(--purple),var(--green-2));box-shadow:0 10px 26px rgba(75,104,210,.25)}
-.auth-card h1{font-size:24px;margin:0 0 4px}.auth-card p{margin:0;color:var(--text-secondary);font-size:13px;line-height:1.5}.auth-field{margin-top:15px}.auth-field label{display:block;font-size:12px;font-weight:800;color:var(--text-secondary);margin:0 0 7px}.auth-field input{width:100%;border:1px solid rgba(103,119,146,.18);background:rgba(255,255,255,.78);border-radius:14px;padding:13px 14px;font:inherit;font-size:14px;color:var(--text);outline:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.75)}.auth-field input:focus{border-color:rgba(61,114,246,.55);box-shadow:0 0 0 4px rgba(61,114,246,.10)}
-.auth-submit{margin-top:18px;width:100%;border:0;border-radius:14px;padding:13px 15px;font:inherit;font-size:14px;font-weight:800;color:white;cursor:pointer;background:linear-gradient(135deg,var(--blue),var(--purple));box-shadow:0 10px 24px rgba(78,91,203,.25)}.auth-submit:disabled{opacity:.6;cursor:wait}.auth-error{display:none;margin-top:12px;padding:10px 12px;border-radius:12px;background:rgba(230,108,58,.10);color:#a94422;font-size:12px;line-height:1.45}.auth-note{margin-top:14px!important;font-size:11px!important;color:var(--text-muted)!important;text-align:center}
-.user-menu{display:flex;align-items:center;gap:8px}.avatar-hdr{cursor:pointer;border:0}.logout-btn{border:1px solid rgba(255,255,255,.7);background:rgba(255,255,255,.52);color:var(--text-secondary);padding:7px 10px;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer;display:none}.user-menu:hover .logout-btn{display:block}
-.sync-pill{font-size:10.5px;font-weight:700;color:var(--green);background:rgba(12,139,114,.09);border:1px solid rgba(12,139,114,.13);padding:5px 8px;border-radius:999px;white-space:nowrap}
-.upload-progress{height:7px;background:rgba(61,114,246,.10);border-radius:999px;overflow:hidden;margin-top:10px;display:none}.upload-progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--purple));transition:width .18s ease}
-.file-by{font-size:10.5px;color:var(--text-muted);margin-top:3px}
-@media(max-width:900px){.sync-pill,.logout-btn{display:none!important}.auth-card{padding:22px;border-radius:24px}.auth-card h1{font-size:21px}}
-
+/* Shared Google Drive login */
+.auth-overlay{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:20px;background:radial-gradient(circle at 15% 10%,rgba(61,114,246,.35),transparent 32%),radial-gradient(circle at 85% 85%,rgba(32,184,146,.25),transparent 30%),rgba(234,241,255,.78);backdrop-filter:blur(24px)}
+.auth-overlay.hidden{display:none}.auth-card{width:min(430px,100%);padding:28px;border-radius:26px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.85);box-shadow:0 28px 80px rgba(42,58,100,.20)}.auth-logo{width:56px;height:56px;border-radius:18px;display:grid;place-items:center;font-size:25px;background:linear-gradient(135deg,var(--blue),var(--purple),var(--green-2));margin-bottom:16px}.auth-card h2{margin:0 0 6px;font-size:24px}.auth-card p{margin:0 0 18px;color:var(--text-secondary);font-size:13px}.auth-field{display:block;margin:11px 0}.auth-field span{display:block;font-size:11px;font-weight:800;color:var(--text-muted);margin:0 0 6px}.auth-field select,.auth-field input{width:100%;border:1px solid rgba(60,80,120,.12);background:rgba(255,255,255,.84);padding:12px 13px;border-radius:13px;outline:none;color:var(--text)}.auth-field input:focus,.auth-field select:focus{border-color:rgba(61,114,246,.35);box-shadow:0 0 0 4px rgba(61,114,246,.08)}.auth-submit{width:100%;margin-top:8px;padding:12px 15px;border:0;border-radius:13px;color:#fff;font-weight:850;background:linear-gradient(135deg,var(--blue),var(--purple));cursor:pointer}.auth-error{min-height:18px;font-size:12px;color:var(--orange);margin-top:10px}.cloud-status{font-size:11px;font-weight:750;color:var(--green);white-space:nowrap}.cloud-status.bad{color:var(--orange)}
 </style>
 </head>
 <body>
-<div class="auth-screen" id="authScreen">
-  <form class="auth-card" id="authForm">
-    <div class="auth-brand"><div class="auth-logo">👪</div><div><h1>Family Visa Documents</h1><p>Private shared workspace for Abdullah &amp; Ayesha</p></div></div>
-    <div class="auth-field"><label for="loginEmail">Email</label><input id="loginEmail" type="email" autocomplete="username" required placeholder="you@example.com"></div>
-    <div class="auth-field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Password"></div>
-    <button class="auth-submit" id="loginBtn" type="submit">Sign in</button>
-    <div class="auth-error" id="authError"></div>
-    <p class="auth-note">Only accounts created in your Firebase Authentication project can sign in.</p>
-  </form>
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-card">
+    <div class="auth-logo">👪</div>
+    <h2>Family Visa Documents</h2>
+    <p>Sign in to see the shared Google Drive documents.</p>
+    <label class="auth-field"><span>WHO ARE YOU?</span><select id="loginUser"><option>Abdullah</option><option>Ayesha</option></select></label>
+    <label class="auth-field"><span>PASSWORD</span><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Password"></label>
+    <button class="auth-submit" id="loginBtn">Sign in</button>
+    <div class="auth-error" id="loginError"></div>
+  </div>
 </div>
 <div class="app">
   <div class="header">
@@ -163,8 +150,7 @@ button{touch-action:manipulation}
     <div class="logo"><span class="dot">👪</span><span id="headerTitle">Family Docs</span></div>
     <div class="search"><span>🔍</span><input id="searchInput" placeholder="Search documents"></div>
     <span class="progress" id="progressLabel"></span>
-    <span class="sync-pill" id="syncStatus">Cloud sync</span>
-    <div class="user-menu"><button class="avatar-hdr" id="userAvatar" title="Signed in">A</button><button class="logout-btn" id="logoutBtn">Sign out</button></div>
+    <span class="cloud-status" id="cloudStatus">☁ Shared</span><div class="avatar-hdr" id="avatarHdr">A</div>
     <button class="dlbtn" id="dlAllBtn">⬇ PDF</button>
   </div>
   <div class="main" id="main" data-view="cats">
@@ -175,28 +161,7 @@ button{touch-action:manipulation}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { getFirestore, collection, doc, setDoc, onSnapshot, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
-import { getStorage, ref as storageRef, uploadBytesResumable, deleteObject, getBlob } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBq5tKTK2BM8PIDpYyfeDIWLjkrt3ji-24",
-  authDomain: "files-upload-27f44.firebaseapp.com",
-  projectId: "files-upload-27f44",
-  storageBucket: "files-upload-27f44.firebasestorage.app",
-  messagingSenderId: "333594365325",
-  appId: "1:333594365325:web:34c6ab232e186bce89c1c4",
-  measurementId: "G-4VZVF2PGTJ"
-};
-
-const firebaseApp = initializeApp(firebaseConfig);
-const auth = getAuth(firebaseApp);
-const db = getFirestore(firebaseApp);
-const storage = getStorage(firebaseApp);
-setPersistence(auth, browserLocalPersistence).catch(()=>{});
-
+<script>
 const WHO_COLOR = { Ayesha:"var(--pink)", Abdullah:"var(--blue)", Airah:"var(--orange)", Both:"var(--gray)" };
 const CAT_ICON = { app:"📝", id:"🪪", child:"👶", rel:"💍", fin:"💰", other:"📁" };
 
@@ -231,370 +196,106 @@ const DATA = [
   ]}
 ];
 
+const API_BASE = "PASTE_YOUR_CLOUDFLARE_WORKER_URL_HERE"; // Example: https://visa-files.your-subdomain.workers.dev
+const TOKEN_KEY = "familyVisaDriveToken_v1";
+let sessionToken = localStorage.getItem(TOKEN_KEY) || "";
+let currentUser = localStorage.getItem("familyVisaDriveUser_v1") || "";
 let state = {};
-let currentUser = null;
-let unsubscribeItems = null;
-const objectUrlCache = new Map();
-
-// The checklist is synced in Firestore. File bytes live in Firebase Storage.
-// No visa document content is stored in localStorage.
-function seedDefaults(){
-  DATA.forEach(sec => sec.items.forEach(it => {
-    if (it.have && !state[it.id]) state[it.id] = { checked:true, files:[] };
-  }));
-}
-function itemDoc(id){ return doc(db, "familyVisa", "shared", "items", id); }
-async function saveItem(id, patch){
-  if (!currentUser) throw new Error("Please sign in again.");
-  await setDoc(itemDoc(id), patch, {merge:true});
-}
-function startCloudSync(){
-  if (unsubscribeItems) unsubscribeItems();
-  document.getElementById('syncStatus').textContent = 'Syncing…';
-  unsubscribeItems = onSnapshot(collection(db, "familyVisa", "shared", "items"), snap=>{
-    const next = {};
-    snap.forEach(d=>{ next[d.id] = d.data(); });
-    state = next; seedDefaults();
-    document.getElementById('syncStatus').textContent = '● Synced';
-    renderAll();
-  }, err=>{
-    console.error(err);
-    document.getElementById('syncStatus').textContent = 'Sync error';
-  });
-}
-
-
 let activeCat = DATA[0].id;
 let activeItem = null;
 let previewIdx = 0;
 let zoom = 1;
 const isMobile = () => window.innerWidth <= 900;
 
-function isDone(id){
-  const st = state[id] || {};
-  return !!st.checked || !!(st.files && st.files.length);
+function api(path, options={}){
+  if (!API_BASE.startsWith('http')) throw new Error('Cloudflare Worker URL has not been added to index.html yet.');
+  const headers = new Headers(options.headers || {});
+  if (sessionToken) headers.set('Authorization','Bearer '+sessionToken);
+  return fetch(API_BASE.replace(/\/$/,'') + path, {...options, headers});
 }
-function counts(sec){
-  const total = sec.items.length;
-  const done = sec.items.filter(it => isDone(it.id)).length;
-  return {total, done};
-}
+function categoryForItem(id){ for(const s of DATA) if(s.items.some(i=>i.id===id)) return s.id; return ''; }
+function isDone(id){ return !!(state[id]?.files?.length); }
+function counts(sec){ const total=sec.items.length; const done=sec.items.filter(it=>isDone(it.id)).length; return {total,done}; }
 function findItem(id){ for (const s of DATA) for (const it of s.items) if (it.id===id) return it; }
+function fileUrl(id){ return API_BASE.replace(/\/$/,'') + '/download?id=' + encodeURIComponent(id); }
+
+async function syncCloud(showStatus=true){
+  if (!sessionToken) return false;
+  const status=document.getElementById('cloudStatus');
+  if(showStatus){status.textContent='↻ Syncing';status.classList.remove('bad');}
+  try{
+    const r=await api('/sync');
+    if(r.status===401){ logout(false); return false; }
+    if(!r.ok) throw new Error((await r.json()).error||'Sync failed');
+    const d=await r.json();
+    state={};
+    for(const [id,files] of Object.entries(d.items||{})) state[id]={files};
+    currentUser=d.user||currentUser;
+    localStorage.setItem('familyVisaDriveUser_v1',currentUser);
+    document.getElementById('avatarHdr').textContent=(currentUser||'A')[0];
+    status.textContent='☁ Shared';status.classList.remove('bad');
+    renderAll();
+    return true;
+  }catch(e){status.textContent='⚠ Offline';status.classList.add('bad'); console.error(e); return false;}
+}
+function logout(clear=true){ if(clear){localStorage.removeItem(TOKEN_KEY);localStorage.removeItem('familyVisaDriveUser_v1');} sessionToken='';currentUser='';document.getElementById('authOverlay').classList.remove('hidden'); }
+
+async function login(){
+  const btn=document.getElementById('loginBtn'), err=document.getElementById('loginError');
+  btn.disabled=true;btn.textContent='Signing in…';err.textContent='';
+  try{
+    const user=document.getElementById('loginUser').value;
+    const password=document.getElementById('loginPassword').value;
+    const r=await fetch(API_BASE.replace(/\/$/,'')+'/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user,password})});
+    const d=await r.json(); if(!r.ok) throw new Error(d.error||'Sign in failed.');
+    sessionToken=d.token;currentUser=d.user;localStorage.setItem(TOKEN_KEY,sessionToken);localStorage.setItem('familyVisaDriveUser_v1',currentUser);
+    document.getElementById('authOverlay').classList.add('hidden');document.getElementById('loginPassword').value='';
+    await syncCloud();
+  }catch(e){err.textContent=e.message;}
+  finally{btn.disabled=false;btn.textContent='Sign in';}
+}
+
+document.getElementById('loginBtn').onclick=login;
+document.getElementById('loginPassword').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
 
 function renderSidebar(){
-  const el = document.getElementById("sidebar");
-  let total=0, done=0;
-  DATA.forEach(sec=>{ const c=counts(sec); total+=c.total; done+=c.done; });
-  const pct = total ? Math.round((done/total)*100) : 0;
-  el.innerHTML = `
-    <div class="summary-card">
-      <div class="summary-top">
-        <div><div class="summary-kicker">Application progress</div><div class="summary-title">Family visa pack</div></div>
-        <div class="summary-value">${pct}%</div>
-      </div>
-      <div class="summary-bar"><span style="width:${pct}%"></span></div>
-    </div>` + DATA.map(sec => {
-      const {total,done} = counts(sec);
-      return `<button class="cat ${sec.id===activeCat?'active':''}" data-cat="${sec.id}"><span class="ic">${CAT_ICON[sec.id]}</span>${sec.title}<span class="n">${done}/${total}</span></button>`;
-    }).join("");
-  el.querySelectorAll('[data-cat]').forEach(b=>b.onclick=()=>{
-    activeCat = b.getAttribute('data-cat'); activeItem=null;
-    setView('list'); renderAll();
-  });
+  const el=document.getElementById('sidebar'); let total=0,done=0; DATA.forEach(sec=>{const c=counts(sec);total+=c.total;done+=c.done;}); const pct=total?Math.round(done/total*100):0;
+  el.innerHTML=`<div class="summary-card"><div class="summary-top"><div><div class="summary-kicker">Application progress</div><div class="summary-title">Family visa pack</div></div><div class="summary-value">${pct}%</div></div><div class="summary-bar"><span style="width:${pct}%"></span></div></div>`+DATA.map(sec=>{const c=counts(sec);return `<button class="cat ${sec.id===activeCat?'active':''}" data-cat="${sec.id}"><span class="ic">${CAT_ICON[sec.id]}</span>${sec.title}<span class="n">${c.done}/${c.total}</span></button>`}).join('');
+  el.querySelectorAll('[data-cat]').forEach(b=>b.onclick=()=>{activeCat=b.dataset.cat;activeItem=null;setView('list');renderAll();});
 }
-
-function rowHtml(it){
-  const st = state[it.id]||{};
-  return `<div class="row ${st.checked?'done':''} ${it.id===activeItem?'selected':''}" data-item="${it.id}">
-    <input type="checkbox" data-check="${it.id}" ${st.checked?'checked':''}>
-    <div class="av" style="background:${WHO_COLOR[it.who]}">${it.who[0]}</div>
-    <div class="body">
-      <span class="who" style="color:${WHO_COLOR[it.who]}">${it.who}</span>
-      <span class="rt">${it.t}</span>
-      ${it.n?`<span class="rn">${it.n}</span>`:''}
-    </div>
-    ${st.files&&st.files.length?`<span class="clip">📎${st.files.length>1?st.files.length:''}</span>`:''}
-  </div>`;
+function rowHtml(it){const files=state[it.id]?.files||[];const done=files.length>0;return `<div class="row ${done?'done':''} ${it.id===activeItem?'selected':''}" data-item="${it.id}"><input type="checkbox" ${done?'checked':''} disabled title="Completed automatically when a file is uploaded"><div class="av" style="background:${WHO_COLOR[it.who]}">${it.who[0]}</div><div class="body"><span class="who" style="color:${WHO_COLOR[it.who]}">${it.who}</span><span class="rt">${it.t}</span>${it.n?`<span class="rn">${it.n}</span>`:''}</div>${files.length?`<span class="clip">📎${files.length>1?files.length:''}</span>`:''}</div>`;}
+function renderList(){const el=document.getElementById('listPane');const q=(document.getElementById('searchInput')||{}).value?.trim().toLowerCase();if(q){const m=[];DATA.forEach(sec=>sec.items.forEach(it=>{if((it.t+' '+it.n).toLowerCase().includes(q))m.push(it)}));el.innerHTML=`<div class="list-title">Search results</div>`+(m.length?m.map(rowHtml).join(''):`<div class="empty">No documents match "${q}".</div>`)}else{const sec=DATA.find(s=>s.id===activeCat),c=counts(sec),pct=c.total?Math.round(c.done/c.total*100):0;el.innerHTML=`<div class="list-head"><div class="list-title">${sec.title} · ${c.done}/${c.total}</div><div class="mini-progress"><span style="width:${pct}%"></span></div></div>`+sec.items.map(rowHtml).join('')}el.querySelectorAll('[data-item]').forEach(r=>r.onclick=()=>{activeItem=r.dataset.item;previewIdx=0;zoom=1;setView('reader');renderAll();});}
+async function openPreview(file){
+  const headers={'Authorization':'Bearer '+sessionToken}; const r=await fetch(fileUrl(file.id),{headers}); if(!r.ok) throw new Error('Could not open file.'); return URL.createObjectURL(await r.blob());
 }
-
-function renderList(){
-  const el = document.getElementById("listPane");
-  const q = (document.getElementById('searchInput')||{}).value?.trim().toLowerCase();
-  if (q){
-    const matches = [];
-    DATA.forEach(sec => sec.items.forEach(it => { if (it.t.toLowerCase().includes(q)) matches.push(it); }));
-    el.innerHTML = `<div class="list-title">Search results</div>` +
-      (matches.length ? matches.map(rowHtml).join("") : `<div class="empty">No documents match "${q}".</div>`);
-  } else {
-    const sec = DATA.find(s=>s.id===activeCat);
-    const {total,done} = counts(sec);
-    const pct = total ? Math.round((done/total)*100) : 0;
-    el.innerHTML = `<div class="list-head"><div class="list-title">${sec.title} · ${done}/${total}</div><div class="mini-progress"><span style="width:${pct}%"></span></div></div>` + sec.items.map(rowHtml).join("");
-  }
-  el.querySelectorAll('[data-item]').forEach(r=>r.addEventListener('click',(e)=>{
-    if (e.target.matches('[data-check]')) return;
-    activeItem = r.getAttribute('data-item'); zoom=1; previewIdx=0;
-    setView('reader'); renderAll();
-  }));
-  el.querySelectorAll('[data-check]').forEach(cb=>cb.addEventListener('change',async()=>{
-    const id = cb.getAttribute('data-check');
-    cb.disabled = true;
-    try {
-      await saveItem(id, {checked: cb.checked, autoChecked:false, updatedBy: currentUser?.email || ''});
-    } catch(err){ alert('Could not sync this change: ' + err.message); }
-    finally { cb.disabled = false; }
-  }));
-}
-
 function renderReader(){
-  const el = document.getElementById("readerPane");
-  if (!activeItem){ el.innerHTML = '<div class="empty"><span class="empty-icon">📄</span><strong>Select a document</strong><br>Upload, preview and organise each item here.</div>'; return; }
-  const it = findItem(activeItem);
-  const st = state[activeItem]||{};
-  const files = st.files||[];
-  if (previewIdx >= files.length) previewIdx = 0;
-  const chipsHtml = files.map((f,i)=>`<span class="fchip ${i===previewIdx?'sel':''}" data-preview="${i}">
-      ${f.name}<button data-rm="${i}" title="Remove">×</button></span>`).join("");
-  const cur = files[previewIdx];
-  let viewerHtml = "";
-  if (cur){
-    const uploadedBy = cur.uploadedBy ? ` · Uploaded by ${cur.uploadedBy}` : '';
-    viewerHtml = `<div class="file-card"><div class="file-icon">${(cur.type||'').includes('pdf')?'📕':'📎'}</div><div class="file-meta"><div class="file-name">${cur.name}</div><div class="file-type">Loading secure preview…</div><div class="file-by">${uploadedBy}</div></div><button class="btn" id="openCloudFile" disabled>Open</button></div><div id="cloudPreview"></div>`;
-  }
-  const sampleHtml = it.sample ? `<div class="sample"><span class="lbl">Draft letter — fill in, print & sign</span>
-    <textarea readonly>${it.sample}</textarea></div>` : "";
-  const multiNote = files.length>1 ? `<div class="warn" style="color:var(--green);">${files.length} files attached — all will be combined together, in this order, in "Download all as PDF".</div>` : "";
-  el.innerHTML = `
-    <div class="reader-head">
-      <div><h2 class="r-title">${it.t}</h2><div class="r-note">${it.n||'Add the supporting document for this checklist item.'}</div></div>
-      <span class="owner-pill" style="color:${WHO_COLOR[it.who]}">● ${it.who}</span>
-    </div>
-    ${sampleHtml}
-    <div class="upload-zone">
-      <div class="upload-copy"><div class="upload-title">${files.length ? 'Add another document' : 'Upload supporting document'}</div><div class="upload-sub">PDF, JPG or PNG. Uploads are stored securely in Firebase and sync to both devices.</div></div>
-      <label class="btn primary">＋ Choose file<input type="file" id="upInput" accept="image/*,.pdf" multiple></label>
-      <div class="upload-progress" id="uploadProgress"><span></span></div>
-    </div>
-    ${files.length?`<div class="chips">${chipsHtml}</div><div class="saved-note">✓ ${files.length} file${files.length>1?'s':''} attached</div>`:''}
-    ${multiNote}
-    <div class="warn" id="warnMsg" style="display:none;"></div>
-    ${viewerHtml}
-  `;
-  const upInput = document.getElementById('upInput');
-  if (upInput) upInput.addEventListener('change', async (e)=>{
-    const picked = Array.from(e.target.files);
-    if (!picked.length || !currentUser) return;
-    const warn = document.getElementById('warnMsg');
-    const prog = document.getElementById('uploadProgress');
-    const bar = prog?.querySelector('span');
-    const tooBig = picked.filter(f=>f.size > 20*1024*1024);
-    if (tooBig.length){ warn.style.display='block'; warn.textContent = tooBig.map(f=>f.name).join(', ') + ' — file is over 20MB.'; return; }
-    warn.style.display='none';
-    upInput.disabled = true;
-    if (prog) prog.style.display='block';
-    try{
-      for (let idx=0; idx<picked.length; idx++){
-        const file = picked[idx];
-        const safeName = file.name.replace(/[^a-zA-Z0-9._-]+/g,'_');
-        const path = `family-visa/${activeItem}/${Date.now()}_${Math.random().toString(36).slice(2,7)}_${safeName}`;
-        const task = uploadBytesResumable(storageRef(storage,path), file, {contentType:file.type || 'application/octet-stream'});
-        await new Promise((resolve,reject)=>{
-          task.on('state_changed', snap=>{
-            const one = snap.totalBytes ? snap.bytesTransferred/snap.totalBytes : 0;
-            const overall = ((idx + one)/picked.length)*100;
-            if (bar) bar.style.width = `${overall}%`;
-          }, reject, resolve);
-        });
-        const meta = {name:file.name, type:file.type || 'application/octet-stream', path, uploadedBy:currentUser.email || '', uploadedAt:Date.now()};
-        await setDoc(itemDoc(activeItem), {
-          files: arrayUnion(meta), checked:true, autoChecked:true, updatedBy:currentUser.email || ''
-        }, {merge:true});
-      }
-      if (bar) bar.style.width='100%';
-    }catch(err){
-      console.error(err); warn.style.display='block'; warn.textContent='Upload failed: ' + err.message;
-    }finally{
-      upInput.disabled = false;
-      setTimeout(()=>{ if(prog) prog.style.display='none'; if(bar) bar.style.width='0'; },450);
-      e.target.value='';
-    }
-  });
-  el.querySelectorAll('[data-preview]').forEach(c=>c.addEventListener('click',(e)=>{
-    if (e.target.matches('[data-rm]')) return;
-    previewIdx = parseInt(c.getAttribute('data-preview'),10); zoom=1; renderReader();
-  }));
-  el.querySelectorAll('[data-rm]').forEach(b=>b.addEventListener('click',async(e)=>{
-    e.stopPropagation();
-    const i = parseInt(b.getAttribute('data-rm'),10);
-    const file = (state[activeItem]?.files||[])[i];
-    if (!file || !confirm(`Remove ${file.name}?`)) return;
-    try{
-      await deleteObject(storageRef(storage,file.path));
-      const remaining = (state[activeItem]?.files||[]).filter((_,idx)=>idx!==i);
-      await setDoc(itemDoc(activeItem), {files:arrayRemove(file), checked: remaining.length ? true : !(state[activeItem]?.autoChecked), autoChecked: remaining.length ? true : false}, {merge:true});
-      const cached = objectUrlCache.get(file.path); if(cached){ URL.revokeObjectURL(cached); objectUrlCache.delete(file.path); }
-      previewIdx = 0;
-    }catch(err){ alert('Could not remove file: ' + err.message); }
-  }));
-  if (cur?.path) loadSecurePreview(cur).catch(err=>{
-    const host=document.getElementById('cloudPreview'); if(host) host.innerHTML=`<div class="warn">Could not load preview: ${err.message}</div>`;
-  });
+  const el=document.getElementById('readerPane');if(!activeItem){el.innerHTML='<div class="empty"><span class="empty-icon">📄</span><strong>Select a document</strong><br>Upload, preview and organise each item here.</div>';return;}
+  const it=findItem(activeItem),files=state[activeItem]?.files||[];if(previewIdx>=files.length)previewIdx=0;const cur=files[previewIdx];
+  const chips=files.map((f,i)=>`<span class="fchip ${i===previewIdx?'sel':''}" data-preview="${i}">${f.name}<button data-rm="${f.id}" title="Delete from shared Drive">×</button></span>`).join('');
+  const sample=it.sample?`<div class="sample"><span class="lbl">Draft letter — fill in, print & sign</span><textarea readonly>${it.sample}</textarea></div>`:'';
+  el.innerHTML=`<div class="reader-head"><div><h2 class="r-title">${it.t}</h2><div class="r-note">${it.n||'Add the supporting document for this checklist item.'}</div></div><span class="owner-pill" style="color:${WHO_COLOR[it.who]}">● ${it.who}</span></div>${sample}<div class="upload-zone"><div class="upload-copy"><div class="upload-title">${files.length?'Add another shared document':'Upload shared document'}</div><div class="upload-sub">Saved in Google Drive and visible to both of you.</div></div><label class="btn primary">＋ Choose file<input type="file" id="upInput" accept="image/*,.pdf" multiple></label></div>${files.length?`<div class="chips">${chips}</div><div class="saved-note">✓ ${files.length} shared file${files.length>1?'s':''}</div>`:''}<div class="warn" id="warnMsg" style="display:none"></div><div id="cloudViewer">${cur?`<div class="file-card"><div class="file-icon">${(cur.type||'').includes('pdf')?'📕':'📎'}</div><div class="file-meta"><div class="file-name">${cur.name}</div><div class="file-type">Uploaded by ${cur.uploadedBy||'family'}${cur.createdTime?' · '+new Date(cur.createdTime).toLocaleDateString():''}</div></div><button class="btn" id="openCloudFile">Open</button></div>`:''}</div>`;
+  document.getElementById('upInput').onchange=async e=>{const picked=[...e.target.files];if(!picked.length)return;const warn=document.getElementById('warnMsg');warn.style.display='block';warn.style.color='var(--green)';try{for(const file of picked){warn.textContent=`Uploading ${file.name}…`;const cat=categoryForItem(activeItem);const r=await api(`/upload?category=${encodeURIComponent(cat)}&item=${encodeURIComponent(activeItem)}&name=${encodeURIComponent(file.name)}`,{method:'POST',headers:{'Content-Type':file.type||'application/octet-stream'},body:file});const d=await r.json();if(!r.ok)throw new Error(d.error||'Upload failed.');}warn.textContent='✓ Uploaded to Google Drive';await syncCloud(false);}catch(ex){warn.style.color='var(--orange)';warn.textContent=ex.message;}};
+  el.querySelectorAll('[data-preview]').forEach(c=>c.onclick=e=>{if(e.target.matches('[data-rm]'))return;previewIdx=+c.dataset.preview;renderReader();});
+  el.querySelectorAll('[data-rm]').forEach(b=>b.onclick=async e=>{e.stopPropagation();if(!confirm('Delete this file from the shared Google Drive folder?'))return;const r=await api('/file?id='+encodeURIComponent(b.dataset.rm),{method:'DELETE'});const d=await r.json();if(!r.ok){alert(d.error||'Delete failed.');return;}previewIdx=0;await syncCloud(false);});
+  const open=document.getElementById('openCloudFile');if(open&&cur)open.onclick=async()=>{open.disabled=true;open.textContent='Opening…';try{const u=await openPreview(cur);const target=document.getElementById('cloudViewer');if((cur.type||'').startsWith('image/'))target.innerHTML+=`<div class="viewer" style="margin-top:10px"><img style="max-width:100%;height:auto" src="${u}"></div>`;else if((cur.type||'').includes('pdf'))target.innerHTML+=`<div class="viewer" style="margin-top:10px"><iframe class="pdf-view" src="${u}#toolbar=0"></iframe></div>`;else window.open(u,'_blank');}catch(ex){alert(ex.message)}finally{open.disabled=false;open.textContent='Open'}};
 }
-
-
-async function secureObjectUrl(file){
-  if (objectUrlCache.has(file.path)) return objectUrlCache.get(file.path);
-  const blob = await getBlob(storageRef(storage,file.path));
-  const url = URL.createObjectURL(blob);
-  objectUrlCache.set(file.path,url);
-  return url;
-}
-async function loadSecurePreview(file){
-  const url = await secureObjectUrl(file);
-  const host = document.getElementById('cloudPreview');
-  const open = document.getElementById('openCloudFile');
-  if (!host || !open) return;
-  open.disabled=false;
-  open.onclick=()=>{ const a=document.createElement('a'); a.href=url; a.download=file.name; a.target='_blank'; a.click(); };
-  const type=file.type||'';
-  const typeEl=open.parentElement?.querySelector('.file-type'); if(typeEl) typeEl.textContent = type.includes('pdf') ? 'PDF document · Cloud synced' : 'Cloud document · Synced';
-  if(type.startsWith('image/')){
-    host.innerHTML=`<div class="zoombar"><button class="btn" id="zOut">−</button><button class="btn" id="zReset">Reset</button><button class="btn" id="zIn">+</button></div><div class="viewer" id="imgWrap"><img id="zImg" src="${url}"></div>`;
-    const zImg=document.getElementById('zImg');
-    document.getElementById('zIn').onclick=()=>{zoom=Math.min(zoom+.25,4);zImg.style.transform=`scale(${zoom})`};
-    document.getElementById('zOut').onclick=()=>{zoom=Math.max(zoom-.25,.5);zImg.style.transform=`scale(${zoom})`};
-    document.getElementById('zReset').onclick=()=>{zoom=1;zImg.style.transform='scale(1)'};
-  }else if(type.includes('pdf')){
-    host.innerHTML=`<div class="viewer" style="margin-top:10px"><iframe class="pdf-view" src="${url}#toolbar=0&navpanes=0"></iframe></div>`;
-  }
-}
-
-function renderProgress(){
-  const v = document.getElementById("main").getAttribute('data-view');
-  if (v==='list' || v==='reader'){
-    const {total,done} = counts(DATA.find(s=>s.id===activeCat));
-    document.getElementById("progressLabel").textContent = `${done}/${total}`;
-  } else {
-    let total=0, done=0;
-    DATA.forEach(sec=>{ const c=counts(sec); total+=c.total; done+=c.done; });
-    document.getElementById("progressLabel").textContent = `${done}/${total} overall`;
-  }
-}
-
-function setView(v){
-  document.getElementById("main").setAttribute('data-view', v);
-  document.getElementById("headerTitle").textContent =
-    v==='cats' ? 'Ireland Join Family Visa' :
-    v==='list' ? DATA.find(s=>s.id===activeCat).title :
-    (activeItem ? findItem(activeItem).t : 'Family Docs');
-  renderProgress();
-}
-
-document.getElementById('backBtn').addEventListener('click', ()=>{
-  const v = document.getElementById("main").getAttribute('data-view');
-  if (v==='reader') setView('list');
-  else if (v==='list') setView('cats');
-});
-
-function renderAll(){ renderSidebar(); renderList(); renderReader(); renderProgress(); }
-seedDefaults();
-setView(isMobile() ? 'cats' : 'reader');
-renderAll();
-document.getElementById('searchInput').addEventListener('input', ()=>{
-  if (isMobile()) setView('list');
-  renderList();
-});
+function renderProgress(){const v=document.getElementById('main').dataset.view;if(v==='list'||v==='reader'){const c=counts(DATA.find(s=>s.id===activeCat));document.getElementById('progressLabel').textContent=`${c.done}/${c.total}`}else{let total=0,done=0;DATA.forEach(sec=>{const c=counts(sec);total+=c.total;done+=c.done});document.getElementById('progressLabel').textContent=`${done}/${total} overall`;}}
+function setView(v){document.getElementById('main').dataset.view=v;document.getElementById('headerTitle').textContent=v==='cats'?'Ireland Join Family Visa':v==='list'?DATA.find(s=>s.id===activeCat).title:(activeItem?findItem(activeItem).t:'Family Docs');renderProgress();}
+document.getElementById('backBtn').onclick=()=>{const v=document.getElementById('main').dataset.view;if(v==='reader')setView('list');else if(v==='list')setView('cats');};
+function renderAll(){renderSidebar();renderList();renderReader();renderProgress();}
+document.getElementById('searchInput').addEventListener('input',()=>{if(isMobile())setView('list');renderList();});
 
 async function downloadAllPdf(){
-  const btn = document.getElementById('dlAllBtn');
-  const original = btn.textContent;
-  btn.disabled = true; btn.textContent = 'Building…';
-  try {
-    if (!window.PDFLib) throw new Error('PDF library did not load — check your connection and try again.');
-    const { PDFDocument, StandardFonts, rgb } = PDFLib;
-    const merged = await PDFDocument.create();
-    const font = await merged.embedFont(StandardFonts.HelveticaBold);
-    let count = 0; const missing = [];
-    for (const sec of DATA){
-      for (const it of sec.items){
-        const files = (state[it.id]||{}).files || [];
-        if (!files.length){ missing.push(it.t); continue; }
-        const label = merged.addPage([595,120]);
-        label.drawText(sec.title.toUpperCase(), {x:40,y:80,size:11,font,color:rgb(0.36,0.34,0.31)});
-        label.drawText(`${it.t} \u2014 ${it.who}${files.length>1?` (${files.length} files combined)`:''}`,
-          {x:40,y:50,size:13,font,color:rgb(0.13,0.13,0.11)});
-        let added = false;
-        for (const f of files){
-          const secureUrl = await secureObjectUrl(f);
-          const buf = await (await fetch(secureUrl)).arrayBuffer();
-          const type = f.type || '';
-          if (type === 'application/pdf'){
-            const src = await PDFDocument.load(buf);
-            const pages = await merged.copyPages(src, src.getPageIndices());
-            pages.forEach(p=>merged.addPage(p));
-            added = true;
-          } else if (type.includes('png') || type.includes('jpeg') || type.includes('jpg')){
-            const img = type.includes('png') ? await merged.embedPng(buf) : await merged.embedJpg(buf);
-            const scale = Math.min(595/img.width, 842/img.height, 1);
-            const w = img.width*scale, h = img.height*scale;
-            const page = merged.addPage([595,842]);
-            page.drawImage(img, {x:(595-w)/2, y:(842-h)/2, width:w, height:h});
-            added = true;
-          } else {
-            missing.push(`${f.name} (unsupported type — re-upload as JPG, PNG or PDF)`);
-          }
-        }
-        if (added) count++;
-      }
-    }
-    if (count===0){ alert('No documents uploaded yet — upload files first, then try again.'); return; }
-    const bytes = await merged.save();
-    const blob = new Blob([bytes], {type:'application/pdf'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'Family-Visa-Documents.pdf'; document.body.appendChild(a); a.click(); a.remove();
-    URL.revokeObjectURL(url);
-    if (missing.length) alert('Downloaded ' + count + ' document(s).\n\nNot included (not uploaded yet):\n' + missing.join('\n'));
-  } catch(err){
-    alert('Could not build the PDF: ' + err.message);
-  } finally {
-    btn.disabled = false; btn.textContent = original;
-  }
-}
+  const btn=document.getElementById('dlAllBtn'),original=btn.textContent;btn.disabled=true;btn.textContent='Building…';
+  try{if(!window.PDFLib)throw new Error('PDF library did not load.');const {PDFDocument,StandardFonts,rgb}=PDFLib;const merged=await PDFDocument.create();const font=await merged.embedFont(StandardFonts.HelveticaBold);let count=0;
+    for(const sec of DATA)for(const it of sec.items){const files=state[it.id]?.files||[];if(!files.length)continue;const label=merged.addPage([595,120]);label.drawText(sec.title.toUpperCase(),{x:40,y:80,size:11,font,color:rgb(.36,.34,.31)});label.drawText(`${it.t} — ${it.who}`,{x:40,y:50,size:13,font,color:rgb(.13,.13,.11)});for(const f of files){const r=await fetch(fileUrl(f.id),{headers:{Authorization:'Bearer '+sessionToken}});if(!r.ok)continue;const buf=await r.arrayBuffer();const type=f.type||'';if(type.includes('pdf')){const src=await PDFDocument.load(buf);const pages=await merged.copyPages(src,src.getPageIndices());pages.forEach(p=>merged.addPage(p));}else if(type.includes('png')||type.includes('jpeg')||type.includes('jpg')){const img=type.includes('png')?await merged.embedPng(buf):await merged.embedJpg(buf);const scale=Math.min(595/img.width,842/img.height,1),w=img.width*scale,h=img.height*scale;const page=merged.addPage([595,842]);page.drawImage(img,{x:(595-w)/2,y:(842-h)/2,width:w,height:h});}}count++;}
+    if(!count)throw new Error('No documents uploaded yet.');const bytes=await merged.save();const u=URL.createObjectURL(new Blob([bytes],{type:'application/pdf'}));const a=document.createElement('a');a.href=u;a.download='Family-Visa-Documents.pdf';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);
+  }catch(e){alert(e.message)}finally{btn.disabled=false;btn.textContent=original;}}
+document.getElementById('dlAllBtn').onclick=downloadAllPdf;
 
-document.getElementById('dlAllBtn').addEventListener('click', downloadAllPdf);
+setView(isMobile()?'cats':'reader');renderAll();
+if(sessionToken){document.getElementById('authOverlay').classList.add('hidden');syncCloud();}
 
-const authScreen=document.getElementById('authScreen');
-const authForm=document.getElementById('authForm');
-const authError=document.getElementById('authError');
-const loginBtn=document.getElementById('loginBtn');
-authForm.addEventListener('submit', async e=>{
-  e.preventDefault(); authError.style.display='none'; loginBtn.disabled=true; loginBtn.textContent='Signing in…';
-  try{
-    await signInWithEmailAndPassword(auth, document.getElementById('loginEmail').value.trim(), document.getElementById('loginPassword').value);
-  }catch(err){
-    console.error(err); authError.style.display='block';
-    authError.textContent = 'Could not sign in. Check the email/password and make sure Email/Password authentication is enabled in Firebase.';
-  }finally{ loginBtn.disabled=false; loginBtn.textContent='Sign in'; }
-});
-document.getElementById('logoutBtn').addEventListener('click',()=>signOut(auth));
-document.getElementById('userAvatar').addEventListener('click',()=>{ if(confirm(`Signed in as ${currentUser?.email||''}. Sign out?`)) signOut(auth); });
-
-onAuthStateChanged(auth, user=>{
-  currentUser=user;
-  if(user){
-    authScreen.classList.add('hidden');
-    const label=(user.displayName || user.email || 'U').trim();
-    document.getElementById('userAvatar').textContent=label[0].toUpperCase();
-    document.getElementById('userAvatar').title=user.email || 'Signed in';
-    startCloudSync();
-  }else{
-    if(unsubscribeItems){ unsubscribeItems(); unsubscribeItems=null; }
-    state={}; seedDefaults(); renderAll();
-    authScreen.classList.remove('hidden');
-    document.getElementById('syncStatus').textContent='Offline';
-  }
-});
 </script>
 </body>
 </html>
