@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Family Visa Documents</title>
+<title>Family Visa Documents</title>\n<meta name="app-build" content="drive-stable-2026-09-28-v4">
 <style>
 :root{
   --bg:#edf4ff;
@@ -214,6 +214,24 @@ function api(path, options={}){
   return fetch(API_BASE.replace(/\/$/,'') + path, {...options, headers});
 }
 function categoryForItem(id){ for(const s of DATA) if(s.items.some(i=>i.id===id)) return s.id; return ''; }
+const ALL_ITEM_IDS = new Set(DATA.flatMap(sec => sec.items.map(it => it.id)));
+function cleanStoredName(name){
+  const s = String(name || 'document');
+  const m = s.match(/^([a-z]\d+)__(.+)$/i);
+  return (m && ALL_ITEM_IDS.has(m[1])) ? m[2] : s;
+}
+function itemIdFromDriveFile(file){
+  const prop = file?.appProperties?.itemId;
+  if (prop && ALL_ITEM_IDS.has(prop)) return prop;
+  const m = String(file?.name || '').match(/^([a-z]\d+)__/i);
+  return (m && ALL_ITEM_IDS.has(m[1])) ? m[1] : '';
+}
+function isSessionError(message){
+  const m = String(message || '').toLowerCase();
+  return m.includes('not signed in') ||
+         m.includes('invalid session') ||
+         m.includes('session expired');
+}
 function isDone(id){ return !!(state[id]?.files?.length); }
 function counts(sec){ const total=sec.items.length; const done=sec.items.filter(it=>isDone(it.id)).length; return {total,done}; }
 function findItem(id){ for (const s of DATA) for (const it of s.items) if (it.id===id) return it; }
@@ -235,59 +253,93 @@ async function syncCloud(showStatus=true){
   }
 
   try {
-    const r = await api('/sync');
+    const nextState = {};
 
-    if (r.status === 401) {
-      let message = 'Your saved sign-in expired. Please sign in again.';
-      try {
-        const d = await r.json();
-        if (d?.error) message = d.error;
-      } catch (_) {}
+    for (const sec of DATA) {
+      const r = await api('/list?category=' + encodeURIComponent(sec.id));
+      let d = {};
+      try { d = await r.json(); } catch (_) {}
 
-      localStorage.removeItem(TOKEN_KEY);
-      localStorage.removeItem('familyVisaDriveUser_v1');
-      sessionToken = '';
-      currentUser = '';
+      if (!r.ok) {
+        const message = d?.error || `Could not load ${sec.title} (${r.status})`;
 
-      document.getElementById('authOverlay').classList.remove('hidden');
-      document.getElementById('loginError').textContent = message;
-      status.textContent = 'Sign in';
-      status.classList.add('bad');
-      return false;
+        if (r.status === 401 && isSessionError(message)) {
+          localStorage.removeItem(TOKEN_KEY);
+          localStorage.removeItem('familyVisaDriveUser_v1');
+          sessionToken = '';
+          currentUser = '';
+
+          document.getElementById('authOverlay').classList.remove('hidden');
+          document.getElementById('loginError').textContent = message;
+          status.textContent = 'Sign in';
+          status.classList.add('bad');
+          return false;
+        }
+
+        throw new Error(message);
+      }
+
+      const files = Array.isArray(d.files) ? d.files : [];
+      const unassigned = [];
+
+      for (const rawFile of files) {
+        const itemId = itemIdFromDriveFile(rawFile);
+        const file = {
+          ...rawFile,
+          name: cleanStoredName(rawFile.name),
+          type: rawFile.mimeType || rawFile.type || '',
+          uploadedBy:
+            rawFile?.appProperties?.uploadedBy ||
+            rawFile.uploadedBy ||
+            String(rawFile.description || '').replace(/^Uploaded by\s*/i,'') ||
+            'family'
+        };
+
+        if (itemId) {
+          if (!nextState[itemId]) nextState[itemId] = { files: [] };
+          nextState[itemId].files.push(file);
+        } else {
+          unassigned.push(file);
+        }
+      }
+
+      // Compatibility for the one or two files uploaded before item metadata
+      // was added. Assign each legacy untagged file to the next empty item.
+      if (unassigned.length) {
+        const emptyItems = sec.items.filter(it => !(nextState[it.id]?.files?.length));
+        unassigned.forEach((file, i) => {
+          const target = emptyItems[i];
+          if (!target) return;
+          if (!nextState[target.id]) nextState[target.id] = { files: [] };
+          nextState[target.id].files.push(file);
+        });
+      }
     }
 
-    const d = await r.json();
+    state = nextState;
 
-    if (!r.ok) {
-      throw new Error(d?.error || `Sync failed (${r.status})`);
-    }
-
-    state = {};
-    Object.entries(d.items || {}).forEach(([itemId, files]) => {
-      state[itemId] = { files: Array.isArray(files) ? files : [] };
-    });
-
-    currentUser = d.user || currentUser;
     if (currentUser) {
       localStorage.setItem('familyVisaDriveUser_v1', currentUser);
-      document.getElementById('avatarHdr').textContent = currentUser[0].toUpperCase();
+      document.getElementById('avatarHdr').textContent =
+        currentUser[0].toUpperCase();
     }
 
     document.getElementById('authOverlay').classList.add('hidden');
+    document.getElementById('loginError').textContent = '';
     status.textContent = '☁ Shared';
     status.classList.remove('bad');
     renderAll();
     return true;
+
   } catch (e) {
     console.error('Sync error:', e);
     status.textContent = '⚠ Retry';
     status.classList.add('bad');
 
-    if (showStatus) {
-      const err = document.getElementById('loginError');
-      if (err && !document.getElementById('authOverlay').classList.contains('hidden')) {
-        err.textContent = e?.message || 'Could not connect to shared Drive.';
-      }
+    const overlay = document.getElementById('authOverlay');
+    if (!overlay.classList.contains('hidden')) {
+      document.getElementById('loginError').textContent =
+        e?.message || 'Could not connect to Google Drive.';
     }
     return false;
   }
@@ -328,7 +380,7 @@ async function login(){
     document.getElementById('loginPassword').value = '';
 
     const ok = await syncCloud(true);
-    if (!ok && !sessionToken) return;
+    if (!ok) return;
 
     document.getElementById('authOverlay').classList.add('hidden');
   } catch (e) {
@@ -359,7 +411,7 @@ function renderReader(){
   const chips=files.map((f,i)=>`<span class="fchip ${i===previewIdx?'sel':''}" data-preview="${i}">${f.name}<button data-rm="${f.id}" title="Delete from shared Drive">×</button></span>`).join('');
   const sample=it.sample?`<div class="sample"><span class="lbl">Draft letter — fill in, print & sign</span><textarea readonly>${it.sample}</textarea></div>`:'';
   el.innerHTML=`<div class="reader-head"><div><h2 class="r-title">${it.t}</h2><div class="r-note">${it.n||'Add the supporting document for this checklist item.'}</div></div><span class="owner-pill" style="color:${WHO_COLOR[it.who]}">● ${it.who}</span></div>${sample}<div class="upload-zone"><div class="upload-copy"><div class="upload-title">${files.length?'Add another shared document':'Upload shared document'}</div><div class="upload-sub">Saved in Google Drive and visible to both of you.</div></div><label class="btn primary">＋ Choose file<input type="file" id="upInput" accept="image/*,.pdf" multiple></label></div>${files.length?`<div class="chips">${chips}</div><div class="saved-note">✓ ${files.length} shared file${files.length>1?'s':''}</div>`:''}<div class="warn" id="warnMsg" style="display:none"></div><div id="cloudViewer">${cur?`<div class="file-card"><div class="file-icon">${(cur.type||'').includes('pdf')?'📕':'📎'}</div><div class="file-meta"><div class="file-name">${cur.name}</div><div class="file-type">Uploaded by ${cur.uploadedBy||'family'}${cur.createdTime?' · '+new Date(cur.createdTime).toLocaleDateString():''}</div></div><button class="btn" id="openCloudFile">Open</button></div>`:''}</div>`;
-  document.getElementById('upInput').onchange=async e=>{const picked=[...e.target.files];if(!picked.length)return;const warn=document.getElementById('warnMsg');warn.style.display='block';warn.style.color='var(--green)';try{for(const file of picked){warn.textContent=`Uploading ${file.name}…`;const cat=categoryForItem(activeItem);const r=await api(`/upload?category=${encodeURIComponent(cat)}&item=${encodeURIComponent(activeItem)}&name=${encodeURIComponent(file.name)}`,{method:'POST',headers:{'Content-Type':file.type||'application/octet-stream','X-File-Name':file.name,'X-Content-Type':file.type||'application/octet-stream'},body:file});const d=await r.json();if(!r.ok)throw new Error(d.error||'Upload failed.');}warn.textContent='✓ Uploaded to Google Drive';await syncCloud(false);}catch(ex){warn.style.color='var(--orange)';warn.textContent=ex.message;}};
+  document.getElementById('upInput').onchange=async e=>{const picked=[...e.target.files];if(!picked.length)return;const warn=document.getElementById('warnMsg');warn.style.display='block';warn.style.color='var(--green)';try{for(const file of picked){warn.textContent=`Uploading ${file.name}…`;const cat=categoryForItem(activeItem);const r=await api(`/upload?category=${encodeURIComponent(cat)}&item=${encodeURIComponent(activeItem)}&name=${encodeURIComponent(file.name)}`,{method:'POST',headers:{'Content-Type':file.type||'application/octet-stream','X-File-Name':`${activeItem}__${file.name}`,'X-Content-Type':file.type||'application/octet-stream'},body:file});const d=await r.json();if(!r.ok)throw new Error(d.error||'Upload failed.');}warn.textContent='✓ Uploaded to Google Drive';await syncCloud(false);}catch(ex){warn.style.color='var(--orange)';warn.textContent=ex.message;}};
   el.querySelectorAll('[data-preview]').forEach(c=>c.onclick=e=>{if(e.target.matches('[data-rm]'))return;previewIdx=+c.dataset.preview;renderReader();});
   el.querySelectorAll('[data-rm]').forEach(b=>b.onclick=async e=>{e.stopPropagation();if(!confirm('Delete this file from the shared Google Drive folder?'))return;const r=await api('/file/'+encodeURIComponent(b.dataset.rm),{method:'DELETE'});const d=await r.json();if(!r.ok){alert(d.error||'Delete failed.');return;}previewIdx=0;await syncCloud(false);});
   const open=document.getElementById('openCloudFile');if(open&&cur)open.onclick=async()=>{open.disabled=true;open.textContent='Opening…';try{const u=await openPreview(cur);const target=document.getElementById('cloudViewer');if((cur.type||'').startsWith('image/'))target.innerHTML+=`<div class="viewer" style="margin-top:10px"><img style="max-width:100%;height:auto" src="${u}"></div>`;else if((cur.type||'').includes('pdf'))target.innerHTML+=`<div class="viewer" style="margin-top:10px"><iframe class="pdf-view" src="${u}#toolbar=0"></iframe></div>`;else window.open(u,'_blank');}catch(ex){alert(ex.message)}finally{open.disabled=false;open.textContent='Open'}};
